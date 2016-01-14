@@ -1,0 +1,26 @@
+set -e # exit immediately if a simple command exits with a non-zero status
+set -u # report the usage of uninitialized variables
+
+# Detect # of CPUs so make jobs can be parallelized
+CPUS=$(grep -c ^processor /proc/cpuinfo)
+ # Available variables
+# $BOSH_COMPILE_TARGET - where this package & spec'd source files are available
+# $BOSH_INSTALL_TARGET - where you copy/install files to be included in package
+
+export GOROOT="$(readlink -nf /var/vcap/packages/golang1.5)"
+export GOPATH="/var/vcap"
+export PATH="${GOROOT}/bin:${GOPATH}/bin:${PATH}"
+export PATH="${PATH}:/var/vcap/packages/git/bin/"
+
+mkdir -p ${GOPATH}/src/github.com/influxdb
+
+
+
+tar xfv telegraf/telegraf-0.10.0.tar.gz
+mv telegraf-0.10.0 ${GOPATH}/src/github.com/influxdb/telegraf
+cd ${GOPATH}/src/github.com/influxdb/telegraf
+
+make
+
+mkdir -p ${BOSH_INSTALL_TARGET}/bin
+cp ${GOPATH}/bin/telegraf ${BOSH_INSTALL_TARGET}/bin

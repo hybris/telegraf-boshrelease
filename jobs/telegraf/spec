@@ -1,0 +1,36 @@
+---
+name: telegraf
+packages:
+- telegraf
+templates:
+  bin/ctl: bin/ctl
+  bin/monit_debugger: bin/monit_debugger
+  data/properties.sh.erb: data/properties.sh
+  config/telegraf.conf.erb: config/telegraf.conf
+  helpers/ctl_setup.sh: helpers/ctl_setup.sh
+  helpers/ctl_utils.sh: helpers/ctl_utils.sh
+properties:
+  telegraf.outputs:
+    default: ""
+    description: "Configuration of output plugins"
+  telegraf.inputs:
+    default: ""
+    description: "Configuration of input plugins"
+  telegraf.tags:
+    default: ""
+    description: "Default tag configuration"
+  telegraf.interval:
+    default: 10s
+    description: "Default data collection interval for all inputs"
+  telegraf.round_interval:
+    default: true
+    description: "Rounds collection interval to 'interval'"
+  telegraf.flush_interval:
+    default: 10s
+    description: "Default data flushing interval for all outputs. You should not set this below interval. Maximum flush_interval will be flush_interval + flush_jitter"
+  telegraf.flush_jitter:
+    default: 5s
+    description: "Jitter the flush interval by a random amount."
+  telegraf.hostname_prefix:
+    default: ""
+    description: "Prefix for generated hostname."

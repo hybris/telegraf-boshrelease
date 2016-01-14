@@ -1,0 +1,35 @@
+[tags]
+  <%= p('telegraf.tags') %>
+
+
+[agent]
+  # Default data collection interval for all inputs
+  interval = "<%= p('telegraf.interval') %>"
+  # Rounds collection interval to 'interval'
+  # ie, if interval="10s" then always collect on :00, :10, :20, etc.
+  round_interval = <%= p('telegraf.round_interval') %>
+
+  # Default data flushing interval for all outputs. You should not set this below
+  # interval. Maximum flush_interval will be flush_interval + flush_jitter
+  flush_interval = "<%= p('telegraf.flush_interval')%>"
+  # Jitter the flush interval by a random amount. This is primarily to avoid
+  # large write spikes for users running a large number of telegraf instances.
+  # ie, a jitter of 5s and interval 10s means flushes will happen every 10-15s
+  flush_jitter = "<%= p('telegraf.flush_jitter')%>"
+
+  # Run telegraf in debug mode
+  debug = false
+  # Override default hostname, if empty use os.Hostname()
+  hostname = "<%= p("telegraf.hostname_prefix") %>.<%= name %>.<%= index %>"
+
+
+###############################################################################
+#                                  OUTPUTS                                    #
+###############################################################################
+<%= p('telegraf.outputs') %>
+
+###############################################################################
+#                                  INPUTS                                     #
+###############################################################################
+
+<%= p('telegraf.inputs') %>
