@@ -10,27 +10,100 @@ templates:
   helpers/ctl_setup.sh: helpers/ctl_setup.sh
   helpers/ctl_utils.sh: helpers/ctl_utils.sh
 properties:
-  telegraf.outputs:
-    default: ""
-    description: "Configuration of output plugins"
-  telegraf.inputs:
-    default: ""
-    description: "Configuration of input plugins"
+  # agent:
   telegraf.tags:
     default: ""
-    description: "Default tag configuration"
+    description: Default tag configuration
   telegraf.interval:
     default: 10s
-    description: "Default data collection interval for all inputs"
+    description: Default data collection interval for all inputs
   telegraf.round_interval:
     default: true
-    description: "Rounds collection interval to 'interval'"
+    description: Rounds collection interval to 'interval'
   telegraf.flush_interval:
     default: 10s
-    description: "Default data flushing interval for all outputs. You should not set this below interval. Maximum flush_interval will be flush_interval + flush_jitter"
+    description: Default data flushing interval for all outputs. You should not set this below interval. Maximum flush_interval will be flush_interval + flush_jitter
   telegraf.flush_jitter:
     default: 5s
-    description: "Jitter the flush interval by a random amount."
+    description: Jitter the flush interval by a random amount.
   telegraf.hostname_prefix:
     default: ""
-    description: "Prefix for generated hostname."
+    description: Prefix for generated hostname.
+
+  # influxdb output:
+  telegraf.outputs.inxluxdb.urls:
+    default: ""
+    description: |
+      The full HTTP or UDP endpoint URL for your InfluxDB instance.
+      Multiple urls can be specified as part of the same cluster,
+      this means that only ONE of the urls will be written to each interval.
+  telegraf.outputs.inxluxdb.database:
+    default: ""
+    description: The target database for metrics (telegraf will create it if not exists).
+  telegraf.outputs.inxluxdb.retention_policy:
+    default: ""
+    description: Retention policy to write to. Empty string writes to the default rp.
+  telegraf.outputs.inxluxdb.write_consistency:
+    default: "any"
+    description: 'Write consistency (clusters only), can be: "any", "one", "quorum", "all"'
+  telegraf.outputs.inxluxdb.timeout:
+    default: "5s"
+    description: If not provided, will default to 5s. 0s means no timeout (not recommended).
+  telegraf.outputs.inxluxdb.username:
+    default: ""
+  telegraf.outputs.inxluxdb.password:
+    default: ""
+  telegraf.outputs.inxluxdb.user_agent:
+    default: "telegraf"
+    description: Set the user agent for HTTP POSTs (can be useful for log differentiation)
+  telegraf.outputs.inxluxdb.udp_payload:
+    default: ""
+    description: Set UDP payload size, defaults to InfluxDB UDP Client default (512 bytes)
+  # optional ssl config
+  telegraf.outputs.inxluxdb.ssl_ca:
+    default: ""
+  telegraf.outputs.inxluxdb.ssl_cert:
+    default: ""
+  telegraf.outputs.inxluxdb.ssl_key:
+    default: ""
+  telegraf.outputs.inxluxdb.insecure_skip_verify:
+    default: ""
+
+  # statsd input:
+  telegraf.inputs.statsd.service_address:
+    default: ":8125"
+    description: Address and port to host UDP listener on
+  telegraf.inputs.statsd.delete_gauges:
+    default: true
+    description: Delete gauges every interval (default=false)
+  telegraf.inputs.statsd.delete_counters:
+    default: true
+    description: Delete counters every interval (default=false)
+  telegraf.inputs.statsd.delete_sets:
+    default: true
+    description: Delete sets every interval (default=false)
+  telegraf.inputs.statsd.delete_timings:
+    default: true
+    description: Delete timings & histograms every interval (default=true)
+  telegraf.inputs.statsd.percentiles:
+    default: [90]
+    description: Percentiles to calculate for timing & histogram stats
+  telegraf.inputs.statsd.metric_separator:
+    default: "_"
+    description: separator to use between elements of a statsd metric
+  telegraf.inputs.statsd.parse_data_dog_tags:
+    default: false
+    description: |
+      Parses tags in the datadog statsd format
+      http://docs.datadoghq.com/guides/dogstatsd/
+  telegraf.inputs.statsd.allowed_pending_messages:
+    default: 10000
+    description: |
+      Number of UDP messages allowed to queue up, once filled,
+      the statsd server will start dropping packets"
+  telegraf.inputs.statsd.percentile_limit:
+    default: 1000
+    description: |
+      Number of timing/histogram values to track per-measurement in the
+      calculation of percentiles. Raising this limit increases the accuracy
+      of percentiles but also increases the memory usage and cpu time.

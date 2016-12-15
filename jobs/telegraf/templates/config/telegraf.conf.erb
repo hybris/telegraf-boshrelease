@@ -20,16 +20,56 @@
   # Run telegraf in debug mode
   debug = false
   # Override default hostname, if empty use os.Hostname()
-  hostname = "<%= p("telegraf.hostname_prefix") %>.<%= name %>.<%= index %>"
+  hostname = "<%= p('telegraf.hostname_prefix') %>.<%= name %>.<%= index %>"
 
 
 ###############################################################################
 #                                  OUTPUTS                                    #
 ###############################################################################
-<%= p('telegraf.outputs') %>
+<%
+  influx_output_enabled = false
+  if p('telegraf.outputs.inxluxdb.urls', '').empty? == false
+    influx_output_enabled = true
+  end
+%>
+
+<% if influx_output_enabled %>
+[[outputs.influxdb]]
+  <% if p('telegraf.outputs.inxluxdb.urls', '').empty? == false %>urls = <%= p('telegraf.outputs.inxluxdb.urls') %><% end %>
+  <% if p('telegraf.outputs.inxluxdb.database', '').empty? == false %>database = "<%= p('telegraf.outputs.inxluxdb.database') %>"<% end %>
+  <% if p('telegraf.outputs.inxluxdb.retention_policy', '').empty? == false %>retention_policy = "<%= p('telegraf.outputs.inxluxdb.retention_policy') %>"<% end %>
+  <% if p('telegraf.outputs.inxluxdb.write_consistency', '').empty? == false %>write_consistency = "<%= p('telegraf.outputs.inxluxdb.write_consistency') %>"<% end %>
+  <% if p('telegraf.outputs.inxluxdb.timeout', '').empty? == false %>timeout = "<%= p('telegraf.outputs.inxluxdb.timeout') %>"<% end %>
+  <% if p('telegraf.outputs.inxluxdb.username', '').empty? == false %>username = "<%= p('telegraf.outputs.inxluxdb.username') %>"<% end %>
+  <% if p('telegraf.outputs.inxluxdb.password', '').empty? == false %>password = "<%= p('telegraf.outputs.inxluxdb.password') %>"<% end %>
+  <% if p('telegraf.outputs.inxluxdb.user_agent', '').empty? == false %>user_agent = "<%= p('telegraf.outputs.inxluxdb.user_agent') %>"<% end %>
+  <% if p('telegraf.outputs.inxluxdb.udp_payload', '').empty? == false %>udp_payload = "<%= p('telegraf.outputs.inxluxdb.udp_payload') %>"<% end %>
+  <% if p('telegraf.outputs.inxluxdb.ssl_ca', '').empty? == false %>ssl_ca = "<%= p('telegraf.outputs.inxluxdb.ssl_ca') %>"<% end %>
+  <% if p('telegraf.outputs.inxluxdb.ssl_cert', '').empty? == false %>ssl_cert = "<%= p('telegraf.outputs.inxluxdb.ssl_cert') %>"<% end %>
+  <% if p('telegraf.outputs.inxluxdb.ssl_key', '').empty? == false %>ssl_key = "<%= p('telegraf.outputs.inxluxdb.ssl_key') %>"<% end %>
+  <% if p('telegraf.outputs.inxluxdb.insecure_skip_verify', '').empty? == false %>insecure_skip_verify = "<%= p('telegraf.outputs.inxluxdb.insecure_skip_verify') %>"<% end %>
+<% end %>
 
 ###############################################################################
 #                                  INPUTS                                     #
 ###############################################################################
+<%
+  statsd_input_enabled = false
+  if p('telegraf.inputs.statsd.service_address', '').empty? == false
+    statsd_input_enabled = true
+  end
+%>
 
-<%= p('telegraf.inputs') %>
+<% if statsd_input_enabled %>
+[[inputs.statsd]]
+  <% if p('telegraf.inputs.statsd.service_address', '').empty? == false %>service_address = "<%= p('telegraf.inputs.statsd.service_address') %>"<% end %>
+  <% if p('telegraf.inputs.statsd.delete_gauges', 'false') == true %>delete_gauges = <%= p('telegraf.inputs.statsd.delete_gauges') %><% end %>
+  <% if p('telegraf.inputs.statsd.delete_counters', 'false') == true %>delete_counters = <%= p('telegraf.inputs.statsd.delete_counters') %><% end %>
+  <% if p('telegraf.inputs.statsd.delete_sets', 'false') == true %>delete_sets = <%= p('telegraf.inputs.statsd.delete_sets') %><% end %>
+  <% if p('telegraf.inputs.statsd.delete_timings', 'false') == true %>delete_timings = <%= p('telegraf.inputs.statsd.delete_timings') %><% end %>
+  <% if p('telegraf.inputs.statsd.percentiles', '').empty? == false %>percentiles = <%= p('telegraf.inputs.statsd.percentiles') %><% end %>
+  <% if p('telegraf.inputs.statsd.metric_separator', '').empty? == false %>metric_separator = "<%= p('telegraf.inputs.statsd.metric_separator') %>"<% end %>
+  <% if p('telegraf.inputs.statsd.parse_data_dog_tags', 'false') == true %>parse_data_dog_tags = <%= p('telegraf.inputs.statsd.parse_data_dog_tags') %><% end %>
+  <% unless p('telegraf.inputs.statsd.allowed_pending_messages', '').equal? 0 %>allowed_pending_messages = <%= p('telegraf.inputs.statsd.allowed_pending_messages') %><% end %>
+  <% unless p('telegraf.inputs.statsd.percentile_limit', '').equal? 0 %>percentile_limit = <%= p('telegraf.inputs.statsd.percentile_limit') %><% end %>
+<% end %>

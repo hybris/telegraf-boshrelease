@@ -1,7 +1,5 @@
 ---
 name: telegraf
-dependencies:
-- golang1.5
-- git
+dependencies: []
 files:
-- telegraf/telegraf-0.10.0.tar.gz
+- telegraf/telegraf-1.1.1_linux_amd64.tar.gz

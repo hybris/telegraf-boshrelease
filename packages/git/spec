@@ -1,5 +1,0 @@
----
-name: git
-dependencies: []
-files:
-- git/git-2.7.0.tar.gz
