@@ -21,36 +21,8 @@ jobs:
 networks: (( param "please set networks" ))
 
 properties:
-properties:
   telegraf:
-    outputs: |+
-      [[outputs.riemann]]
-        # URL of server
-        url = "localhost:5555"
-        # transport protocol to use either tcp or udp
-        transport = "tcp"
-    inputs: |+
-      # Read metrics about cpu usage
-      [[inputs.cpu]]
-        # Whether to report per-cpu stats or not
-        percpu = true
-        # Whether to report total system cpu stats or not
-        totalcpu = true
-        # Comment this line if you want the raw CPU time metrics
-        drop = ["time_*"]
-
-      # Read metrics about disk usage by mount point
-      [[inputs.disk]]
-        # By default, telegraf gather stats for all mountpoints.
-        # Setting mountpoints will restrict the stats to the specified mountpoints.
-        # Mountpoints=["/"]
-
-      # Read metrics about disk IO by device
-      [[inputs.diskio]]
-        # By default, telegraf will gather stats for all devices including
-        # disk partitions.
-        # Setting devices will restrict the stats to the specified devcies.
-        # devices = ["sda","sdb"]
-        # Uncomment the following line if you do not need disk serial numbers.
-        # skip_serial_number = true
+    outputs:
+      inxluxdb:
+        urls: ["127.0.0.1:8083"]
     hostname_prefix: warden
