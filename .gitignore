@@ -3,6 +3,7 @@ config/private.yml
 config/settings.yml
 releases/**/*.tgz
 dev_releases
+release
 blobs/*
 .blobs
 .dev_builds
@@ -17,3 +18,6 @@ blobs/*
 #*
 tmp
 my*.yml
+*credentials.yml
+releases/*.tgz
+blobs
