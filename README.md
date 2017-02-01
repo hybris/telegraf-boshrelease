@@ -34,7 +34,7 @@ Create a file `my-networking.yml`:
 ``` yaml
 ---
 networks:
-  - name: telegraf1
+  - name: telegraf-network
     type: dynamic
     cloud_properties:
       security_groups:

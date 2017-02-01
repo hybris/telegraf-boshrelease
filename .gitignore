@@ -5,6 +5,7 @@ releases/**/*.tgz
 dev_releases
 release
 blobs/*
+src_local/
 .blobs
 .dev_builds
 .vagrant

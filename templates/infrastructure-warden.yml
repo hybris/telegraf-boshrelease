@@ -7,30 +7,30 @@ meta:
 
 update:
   canaries: 1
-  max_in_flight: 50
+  max_in_flight: 1
   canary_watch_time: 1000-30000
   update_watch_time: 1000-30000
 
 jobs:
   - name: telegraf
     networks:
-      - name: telegraf1
+      - name: telegraf-network
 
 compilation:
   cloud_properties:
     name: random
 
 resource_pools:
-  - name: small_z1
+  - name: telegraf-pool
     cloud_properties:
       name: random
 
 networks:
-- name: telegraf1
+- name: telegraf-network
   type: manual
   subnets:
-  - range: 10.244.15.0/24
-    name: telegraf1
-    gateway: 10.244.15.1
+  - range: 10.244.10.8/29
+    name: telegraf
+    gateway: 10.244.10.9
     static:
-      - 10.244.15.2 - 10.244.15.60
+      - 10.244.10.10

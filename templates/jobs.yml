@@ -3,9 +3,9 @@ meta:
 
 update:
   canaries: 1
-  max_in_flight: 50
-  canary_watch_time: 1000-30000
-  update_watch_time: 1000-30000
+  max_in_flight: 1
+  canary_watch_time: 1000-60000
+  update_watch_time: 1000-60000
   serial: false
 
 jobs:
@@ -15,14 +15,9 @@ jobs:
       release: telegraf
     instances: 1
     persistent_disk: 0
-    resource_pool: small_z1
+    resource_pool: telegraf-pool
     networks: (( param "please set just_install_package networks" ))
 
 networks: (( param "please set networks" ))
 
-properties:
-  telegraf:
-    outputs:
-      inxluxdb:
-        urls: ["127.0.0.1:8083"]
-    hostname_prefix: warden
+properties: {}

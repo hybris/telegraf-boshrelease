@@ -77,6 +77,7 @@ spruce merge --prune meta \
   $templates/jobs.yml \
   $templates/infrastructure-${infrastructure}.yml \
   $tmpdir/stub-with-uuid.yml \
+	$templates/properties.yml \
   $* > $tmpdir/$NAME-manifest.yml
 
 bosh deployment $tmpdir/$NAME-manifest.yml
