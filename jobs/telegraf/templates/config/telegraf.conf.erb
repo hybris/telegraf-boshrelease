@@ -1,75 +1,411 @@
-[tags]
+# Telegraf Configuration
+#
+# Telegraf is entirely plugin driven. All metrics are gathered from the
+# declared inputs, and sent to the declared outputs.
+#
+# Plugins must be declared in here to be active.
+# To deactivate a plugin, comment out the name and any variables.
+#
+# Use 'telegraf -config telegraf.conf -test' to see what metrics a config
+# file would generate.
+#
+# Environment variables can be used anywhere in this config file, simply prepend
+# them with $. For strings the variable must be within quotes (ie, "$STR_VAR"),
+# for numbers and booleans they should be plain (ie, $INT_VAR, $BOOL_VAR)
+# Global tags can be specified here in key="value" format.
+
+[global_tags]
   <%= p('telegraf.tags') %>
+  #dc = "us-east-1" # will tag all metrics with dc=us-east-1
+  #deployment = "telegraf"
+  #team = "idefix"
+  # rack = "1a"
+  ## Environment variables can be used as tags, and throughout the config file
+  # user = "$USER"
 
-
+# Configuration for telegraf agent
 [agent]
-  # Default data collection interval for all inputs
+  ## Default data collection interval for all inputs
   interval = "<%= p('telegraf.interval') %>"
-  # Rounds collection interval to 'interval'
-  # ie, if interval="10s" then always collect on :00, :10, :20, etc.
+  ## Rounds collection interval to 'interval'
+  ## ie, if interval="10s" then always collect on :00, :10, :20, etc.
   round_interval = <%= p('telegraf.round_interval') %>
-
-  # Default data flushing interval for all outputs. You should not set this below
-  # interval. Maximum flush_interval will be flush_interval + flush_jitter
+  ## Telegraf will send metrics to outputs in batches of at most
+  ## metric_batch_size metrics.
+  ## This controls the size of writes that Telegraf sends to output plugins.
+  metric_batch_size = 1000
+  ## For failed writes, telegraf will cache metric_buffer_limit metrics for each
+  ## output, and will flush this buffer on a successful write. Oldest metrics
+  ## are dropped first when this buffer fills.
+  ## This buffer only fills when writes fail to output plugin(s).
+  metric_buffer_limit = 10000
+  ## Collection jitter is used to jitter the collection by a random amount.
+  ## Each plugin will sleep for a random time within jitter before collecting.
+  ## This can be used to avoid many plugins querying things like sysfs at the
+  ## same time, which can have a measurable effect on the system.
+  collection_jitter = "<%= p('telegraf.collection_jitter')%>"
+  ## Default flushing interval for all outputs. You shouldn't set this below
+  ## interval. Maximum flush_interval will be flush_interval + flush_jitter
   flush_interval = "<%= p('telegraf.flush_interval')%>"
-  # Jitter the flush interval by a random amount. This is primarily to avoid
-  # large write spikes for users running a large number of telegraf instances.
-  # ie, a jitter of 5s and interval 10s means flushes will happen every 10-15s
+  ## Jitter the flush interval by a random amount. This is primarily to avoid
+  ## large write spikes for users running a large number of telegraf instances.
+  ## ie, a jitter of 5s and interval 10s means flushes will happen every 10-15s
   flush_jitter = "<%= p('telegraf.flush_jitter')%>"
-
-  # Run telegraf in debug mode
+  ## By default, precision will be set to the same timestamp order as the
+  ## collection interval, with the maximum being 1s.
+  ## Precision will NOT be used for service inputs, such as logparser and statsd.
+  ## Valid values are "ns", "us" (or "µs"), "ms", "s".
+  precision = "<%= p('telegraf.precision')%>"
+  ## Logging configuration:
+  ## Run telegraf with debug log messages.
   debug = false
-  # Override default hostname, if empty use os.Hostname()
-  hostname = "<%= p('telegraf.hostname_prefix') %>.<%= name %>.<%= index %>"
-
-
+  ## Run telegraf in quiet mode (error log messages only).
+  quiet = false
+  ## Specify the log file name. The empty string means to log to stderr.
+  logfile = ""
+  ## Override default hostname, if empty use os.Hostname()
+  hostname = "<%= spec.name %>-<%= spec.index %>"
+  ## If set to true, do no set the "host" tag in the telegraf agent.
+  omit_hostname = false
 ###############################################################################
-#                                  OUTPUTS                                    #
+#                            OUTPUT PLUGINS                                   #
 ###############################################################################
-<%
-  influx_output_enabled = false
-  if p('telegraf.outputs.inxluxdb.urls', '').empty? == false
-    influx_output_enabled = true
-  end
-%>
-
-<% if influx_output_enabled %>
+# Configuration for influxdb server to send metrics to
 [[outputs.influxdb]]
-  <% if p('telegraf.outputs.inxluxdb.urls', '').empty? == false %>urls = <%= p('telegraf.outputs.inxluxdb.urls') %><% end %>
-  <% if p('telegraf.outputs.inxluxdb.database', '').empty? == false %>database = "<%= p('telegraf.outputs.inxluxdb.database') %>"<% end %>
-  <% if p('telegraf.outputs.inxluxdb.retention_policy', '').empty? == false %>retention_policy = "<%= p('telegraf.outputs.inxluxdb.retention_policy') %>"<% end %>
-  <% if p('telegraf.outputs.inxluxdb.write_consistency', '').empty? == false %>write_consistency = "<%= p('telegraf.outputs.inxluxdb.write_consistency') %>"<% end %>
-  <% if p('telegraf.outputs.inxluxdb.timeout', '').empty? == false %>timeout = "<%= p('telegraf.outputs.inxluxdb.timeout') %>"<% end %>
-  <% if p('telegraf.outputs.inxluxdb.username', '').empty? == false %>username = "<%= p('telegraf.outputs.inxluxdb.username') %>"<% end %>
-  <% if p('telegraf.outputs.inxluxdb.password', '').empty? == false %>password = "<%= p('telegraf.outputs.inxluxdb.password') %>"<% end %>
-  <% if p('telegraf.outputs.inxluxdb.user_agent', '').empty? == false %>user_agent = "<%= p('telegraf.outputs.inxluxdb.user_agent') %>"<% end %>
-  <% if p('telegraf.outputs.inxluxdb.udp_payload', '').empty? == false %>udp_payload = "<%= p('telegraf.outputs.inxluxdb.udp_payload') %>"<% end %>
-  <% if p('telegraf.outputs.inxluxdb.ssl_ca', '').empty? == false %>ssl_ca = "<%= p('telegraf.outputs.inxluxdb.ssl_ca') %>"<% end %>
-  <% if p('telegraf.outputs.inxluxdb.ssl_cert', '').empty? == false %>ssl_cert = "<%= p('telegraf.outputs.inxluxdb.ssl_cert') %>"<% end %>
-  <% if p('telegraf.outputs.inxluxdb.ssl_key', '').empty? == false %>ssl_key = "<%= p('telegraf.outputs.inxluxdb.ssl_key') %>"<% end %>
-  <% if p('telegraf.outputs.inxluxdb.insecure_skip_verify', '').empty? == false %>insecure_skip_verify = "<%= p('telegraf.outputs.inxluxdb.insecure_skip_verify') %>"<% end %>
+  ## The full HTTP or UDP endpoint URL for your InfluxDB instance.
+  ## Multiple urls can be specified as part of the same cluster,
+  ## this means that only ONE of the urls will be written to each interval.
+  # urls = ["udp://localhost:8089"] # UDP endpoint example
+  urls = <%= p('telegraf.outputs.inxluxdb.urls') %>
+  ## The target database for metrics (telegraf will create it if not exists).
+  database = "<%= p('telegraf.outputs.inxluxdb.database') %>"
+
+  ## Retention policy to write to. Empty string writes to the default rp.
+  retention_policy = "<%= p('telegraf.outputs.inxluxdb.retention_policy') %>"
+  ## Write consistency (clusters only), can be: "any", "one", "quorum", "all"
+  write_consistency = "<%= p('telegraf.outputs.inxluxdb.write_consistency') %>"
+
+  ## Write timeout (for the InfluxDB client), formatted as a string.
+  ## If not provided, will default to 5s. 0s means no timeout (not recommended).
+  timeout = "<%= p('telegraf.outputs.inxluxdb.timeout') %>"
+  username = "<%= p('telegraf.outputs.inxluxdb.username') %>"
+  password = "<%= p('telegraf.outputs.inxluxdb.password') %>"
+  ## Set the user agent for HTTP POSTs (can be useful for log differentiation)
+  <% if p('telegraf.outputs.inxluxdb.user_agent', '').blank? == false %>
+  user_agent = "<%= p('telegraf.outputs.inxluxdb.user_agent') %>"
+  <% end %>
+  ## Set UDP payload size, defaults to InfluxDB UDP Client default (512 bytes)
+  <% if p('telegraf.outputs.inxluxdb.udp_payload', '').blank? == false %>udp_payload = <%= p('telegraf.outputs.inxluxdb.udp_payload') %><% end %>
+  ## Optional SSL Config
+  # ssl_ca = "/etc/telegraf/ca.pem"
+  # ssl_cert = "/etc/telegraf/cert.pem"
+  # ssl_key = "/etc/telegraf/key.pem"
+  ## Use SSL but skip chain & host verification
+  # insecure_skip_verify = false
+
+
+###############################################################################
+#                            INPUT PLUGINS                                    #
+###############################################################################
+# Read metrics about cpu usage
+[[inputs.cpu]]
+  ## Whether to report per-cpu stats or not
+  percpu = true
+  ## Whether to report total system cpu stats or not
+  totalcpu = true
+  ## If true, collect raw CPU time metrics.
+  collect_cpu_time = false
+
+# Read metrics about disk usage by mount point
+[[inputs.disk]]
+  ## By default, telegraf gather stats for all mountpoints.
+  ## Setting mountpoints will restrict the stats to the specified mountpoints.
+  # mount_points = ["/"]
+  ## Ignore some mountpoints by filesystem type. For example (dev)tmpfs (usually
+  ## present on /run, /var/run, /dev/shm or /dev).
+  #ignore_fs = ["tmpfs", "devtmpfs"]
+
+# Read metrics about disk IO by device
+[[inputs.diskio]]
+  ## By default, telegraf will gather stats for all devices including
+  ## disk partitions.
+  ## Setting devices will restrict the stats to the specified devices.
+  # devices = ["sda", "sdb"]
+  ## Uncomment the following line if you need disk serial numbers.
+  # skip_serial_number = false
+
+# Get kernel statistics from /proc/stat
+[[inputs.kernel]]
+  # no configuration
+
+# Read metrics about memory usage
+[[inputs.mem]]
+  # no configuration
+
+# Get the number of processes and group them by status
+[[inputs.processes]]
+  # no configuration
+
+# Read metrics about swap memory usage
+[[inputs.swap]]
+  # no configuration
+
+# Read metrics about system load & uptime
+[[inputs.system]]
+  # no configuration
+
+# # Read metrics about docker containers
+# [[inputs.docker]]
+#   ## Docker Endpoint
+#   ##   To use TCP, set endpoint = "tcp://[ip]:[port]"
+#   ##   To use environment variables (ie, docker-machine), set endpoint = "ENV"
+#   endpoint = "unix:///var/run/docker.sock"
+#   ## Only collect metrics for these containers, collect all if empty
+#   container_names = []
+#   ## Timeout for docker list, info, and stats commands
+#   timeout = "5s"
+#
+#   ## Whether to report for each container per-device blkio (8:0, 8:1...) and
+#   ## network (eth0, eth1, ...) stats or not
+#   perdevice = true
+#   ## Whether to report for each container total blkio and network stats or not
+#   total = false
+
+# # Read metrics from one or more commands that can output to stdout
+# [[inputs.exec]]
+#   ## Commands array
+#   commands = [
+#     "/tmp/test.sh",
+#     "/usr/bin/mycollector --foo=bar",
+#     "/tmp/collect_*.sh"
+#   ]
+#
+#   ## Timeout for each command to complete.
+#   timeout = "5s"
+#
+#   ## measurement name suffix (for separating different commands)
+#   name_suffix = "_mycollector"
+#
+#   ## Data format to consume.
+#   ## Each data format has it's own unique set of configuration options, read
+#   ## more about them here:
+#   ## https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md
+#   data_format = "influx"
+
+# # Read stats about given file(s)
+# [[inputs.filestat]]
+#   ## Files to gather stats about.
+#   ## These accept standard unix glob matching rules, but with the addition of
+#   ## ** as a "super asterisk". ie:
+#   ##   "/var/log/**.log"  -> recursively find all .log files in /var/log
+#   ##   "/var/log/*/*.log" -> find all .log files with a parent dir in /var/log
+#   ##   "/var/log/apache.log" -> just tail the apache log file
+#   ##
+#   ## See https://github.com/gobwas/glob for more examples
+#   ##
+#   files = ["/var/log/**.log"]
+#   ## If true, read the entire file and calculate an md5 checksum.
+#   md5 = false
+
+# # Read InfluxDB-formatted JSON metrics from one or more HTTP endpoints
+# [[inputs.influxdb]]
+#   ## Works with InfluxDB debug endpoints out of the box,
+#   ## but other services can use this format too.
+#   ## See the influxdb plugin's README for more details.
+#
+#   ## Multiple URLs from which to read InfluxDB-formatted JSON
+#   ## Default is "http://localhost:8086/debug/vars".
+#   urls = [
+#     "http://localhost:8086/debug/vars"
+#   ]
+#
+#   ## http request & header timeout
+#   timeout = "5s"
+
+# # Collect statistics about itself
+[[inputs.internal]]
+  ## If true, collect telegraf memory stats.
+  collect_memstats = true
+
+# # Read metrics from the kubernetes kubelet api
+# [[inputs.kubernetes]]
+#   ## URL for the kubelet
+#   url = "http://1.1.1.1:10255"
+#
+#   ## Use bearer token for authorization
+#   # bearer_token = /path/to/bearer/token
+#
+#   ## Optional SSL Config
+#   # ssl_ca = /path/to/cafile
+#   # ssl_cert = /path/to/certfile
+#   # ssl_key = /path/to/keyfile
+#   ## Use SSL but skip chain & host verification
+#   # insecure_skip_verify = false
+
+# # Read metrics about network interface usage
+[[inputs.net]]
+  ## By default, telegraf gathers stats from any up interface (excluding loopback)
+  ## Setting interfaces will tell it to gather these explicit interfaces,
+  ## regardless of status.
+  ##
+  # interfaces = ["eth0"]
+
+# # TCP or UDP 'ping' given url and collect response time in seconds
+# [[inputs.net_response]]
+#   ## Protocol, must be "tcp" or "udp"
+#   ## NOTE: because the "udp" protocol does not respond to requests, it requires
+#   ## a send/expect string pair (see below).
+#   protocol = "tcp"
+#   ## Server address (default localhost)
+#   address = "localhost:80"
+#   ## Set timeout
+#   timeout = "1s"
+#
+#   ## Set read timeout (only used if expecting a response)
+#   read_timeout = "1s"
+#
+#   ## The following options are required for UDP checks. For TCP, they are
+#   ## optional. The plugin will send the given string to the server and then
+#   ## expect to receive the given 'expect' string back.
+#   ## string sent to the server
+#   # send = "ssh"
+#   ## expected string in answer
+#   # expect = "ssh"
+
+# Read TCP metrics such as established, time wait and sockets counts.
+[[inputs.netstat]]
+  # no configuration
+
+# Collect kernel snmp counters and network interface statistics
+[[inputs.nstat]]
+  ## file paths for proc files. If empty default paths will be used:
+  ##    /proc/net/netstat, /proc/net/snmp, /proc/net/snmp6
+  ## These can also be overridden with env variables, see README.
+  proc_net_netstat = "/proc/net/netstat"
+  proc_net_snmp = "/proc/net/snmp"
+  proc_net_snmp6 = "/proc/net/snmp6"
+  ## dump metrics with 0 values too
+  dump_zeros       = true
+
+# # Get standard NTP query metrics, requires ntpq executable.
+# [[inputs.ntpq]]
+#   ## If false, set the -n ntpq flag. Can reduce metric gather time.
+#   dns_lookup = true
+
+# # Ping given url(s) and return statistics
+# [[inputs.ping]]
+#   ## NOTE: this plugin forks the ping command. You may need to set capabilities
+#   ## via setcap cap_net_raw+p /bin/ping
+#   #
+#   ## urls to ping
+#   urls = ["www.google.com"] # required
+#   ## number of pings to send per collection (ping -c <COUNT>)
+#   # count = 1
+#   ## interval, in s, at which to ping. 0 == default (ping -i <PING_INTERVAL>)
+#   # ping_interval = 1.0
+#   ## per-ping timeout, in s. 0 == no timeout (ping -W <TIMEOUT>)
+#   # timeout = 1.0
+#   ## interface to send ping from (ping -I <INTERFACE>)
+#   # interface = ""
+
+# Monitor process cpu and memory usage
+#[[inputs.procstat]]
+#  ## Must specify one of: pid_file, exe, or pattern
+#  ## PID file to monitor process
+#  pid_file = "/var/run/nginx.pid"
+#  ## executable name (ie, pgrep <exe>)
+#  # exe = "nginx"
+#  ## pattern as argument for pgrep (ie, pgrep -f <pattern>)
+#  # pattern = "nginx"
+#  ## user as argument for pgrep (ie, pgrep -u <user>)
+#  # user = "nginx"
+#
+#  ## override for process_name
+#  ## This is optional; default is sourced from /proc/<pid>/status
+#  # process_name = "bar"
+#  ## Field name prefix
+#  prefix = ""
+#  ## comment this out if you want raw cpu_time stats
+#  fielddrop = ["cpu_time_*"]
+#  ## This is optional; moves pid into a tag instead of a field
+#  pid_tag = false
+
+<% if p('telegraf.inputs.statsd.enabled', 'true') %>
+# Statsd Server
+[[inputs.statsd]]
+  service_address = "<%= p('telegraf.inputs.statsd.service_address') %>"
+  delete_gauges = <%= p('telegraf.inputs.statsd.delete_gauges') %>
+  delete_counters = <%= p('telegraf.inputs.statsd.delete_counters') %>
+  delete_sets = <%= p('telegraf.inputs.statsd.delete_sets') %>
+  delete_timings = <%= p('telegraf.inputs.statsd.delete_timings') %>
+  percentiles = <%= p('telegraf.inputs.statsd.percentiles') %>
+  metric_separator = "<%= p('telegraf.inputs.statsd.metric_separator') %>"
+  parse_data_dog_tags = <%= p('telegraf.inputs.statsd.parse_data_dog_tags') %>
+  allowed_pending_messages = <%= p('telegraf.inputs.statsd.allowed_pending_messages') %>
+  percentile_limit = <%= p('telegraf.inputs.statsd.percentile_limit') %>
 <% end %>
 
-###############################################################################
-#                                  INPUTS                                     #
-###############################################################################
-<%
-  statsd_input_enabled = false
-  if p('telegraf.inputs.statsd.service_address', '').empty? == false
-    statsd_input_enabled = true
-  end
-%>
+# # Stream a log file, like the tail -f command
+# [[inputs.tail]]
+#   ## files to tail.
+#   ## These accept standard unix glob matching rules, but with the addition of
+#   ## ** as a "super asterisk". ie:
+#   ##   "/var/log/**.log"  -> recursively find all .log files in /var/log
+#   ##   "/var/log/*/*.log" -> find all .log files with a parent dir in /var/log
+#   ##   "/var/log/apache.log" -> just tail the apache log file
+#   ##
+#   ## See https://github.com/gobwas/glob for more examples
+#   ##
+#   files = ["/var/mymetrics.out"]
+#   ## Read file from beginning.
+#   from_beginning = false
+#   ## Whether file is a named pipe
+#   pipe = false
+#
+#   ## Data format to consume.
+#   ## Each data format has it's own unique set of configuration options, read
+#   ## more about them here:
+#   ## https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md
+#   data_format = "influx"
 
-<% if statsd_input_enabled %>
-[[inputs.statsd]]
-  <% if p('telegraf.inputs.statsd.service_address', '').empty? == false %>service_address = "<%= p('telegraf.inputs.statsd.service_address') %>"<% end %>
-  <% if p('telegraf.inputs.statsd.delete_gauges', 'false') == true %>delete_gauges = <%= p('telegraf.inputs.statsd.delete_gauges') %><% end %>
-  <% if p('telegraf.inputs.statsd.delete_counters', 'false') == true %>delete_counters = <%= p('telegraf.inputs.statsd.delete_counters') %><% end %>
-  <% if p('telegraf.inputs.statsd.delete_sets', 'false') == true %>delete_sets = <%= p('telegraf.inputs.statsd.delete_sets') %><% end %>
-  <% if p('telegraf.inputs.statsd.delete_timings', 'false') == true %>delete_timings = <%= p('telegraf.inputs.statsd.delete_timings') %><% end %>
-  <% if p('telegraf.inputs.statsd.percentiles', '').empty? == false %>percentiles = <%= p('telegraf.inputs.statsd.percentiles') %><% end %>
-  <% if p('telegraf.inputs.statsd.metric_separator', '').empty? == false %>metric_separator = "<%= p('telegraf.inputs.statsd.metric_separator') %>"<% end %>
-  <% if p('telegraf.inputs.statsd.parse_data_dog_tags', 'false') == true %>parse_data_dog_tags = <%= p('telegraf.inputs.statsd.parse_data_dog_tags') %><% end %>
-  <% unless p('telegraf.inputs.statsd.allowed_pending_messages', '').equal? 0 %>allowed_pending_messages = <%= p('telegraf.inputs.statsd.allowed_pending_messages') %><% end %>
-  <% unless p('telegraf.inputs.statsd.percentile_limit', '').equal? 0 %>percentile_limit = <%= p('telegraf.inputs.statsd.percentile_limit') %><% end %>
+# # Generic TCP listener
+# [[inputs.tcp_listener]]
+#   ## Address and port to host TCP listener on
+#   # service_address = ":8094"
+#
+#   ## Number of TCP messages allowed to queue up. Once filled, the
+#   ## TCP listener will start dropping packets.
+#   # allowed_pending_messages = 10000
+#
+#   ## Maximum number of concurrent TCP connections to allow
+#   # max_tcp_connections = 250
+#
+#   ## Data format to consume.
+#   ## Each data format has it's own unique set of configuration options, read
+#   ## more about them here:
+#   ## https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md
+#   data_format = "influx"
+
+# # Generic UDP listener
+# [[inputs.udp_listener]]
+#   ## Address and port to host UDP listener on
+#   # service_address = ":8092"
+#
+#   ## Number of UDP messages allowed to queue up. Once filled, the
+#   ## UDP listener will start dropping packets.
+#   # allowed_pending_messages = 10000
+#
+#   ## Set the buffer size of the UDP connection outside of OS default (in bytes)
+#   ## If set to 0, take OS default
+#   udp_buffer_size = 16777216
+#
+#   ## Data format to consume.
+#   ## Each data format has it's own unique set of configuration options, read
+#   ## more about them here:
+#   ## https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md
+#   data_format = "influx"
+
+<% if p('telegraf.conf', '').blank? == false %>
+# Any other additions not defined
+<%= p('telegraf.conf') %>
 <% end %>

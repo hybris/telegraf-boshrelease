@@ -139,7 +139,7 @@ resources:
     bucket: {{pipeline-aws-bucket}}
     access_key_id: {{pipeline-aws-access-key-id}}
     secret_access_key: {{pipeline-aws-secret-access-key}}
-    initial_version: 1.1.1
+    initial_version: 1.1.0
 
 - name: git-telegraf-boshrelease
   type: git

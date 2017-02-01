@@ -9,6 +9,14 @@ source /var/vcap/jobs/telegraf/helpers/ctl_setup.sh 'telegraf'
 export PORT=${PORT:-5000}
 export LANG=en_US.UTF-8
 
+JOB_NAME=<%= spec.name %>
+PACKAGE_NAME=telegraf
+
+# Daemon name, where is the actual executable
+# If the daemon is not there, then exit.
+DAEMON=/var/vcap/packages/${PACKAGE_NAME}/usr/bin/telegraf
+[ -x $DAEMON ] || exit 5
+
 case $1 in
 
   start)
@@ -17,7 +25,7 @@ case $1 in
     # store pid in $PIDFILE
     echo $$ > $PIDFILE
 
-    exec chpst -u vcap:vcap telegraf -config $JOB_DIR/config/telegraf.conf \
+    exec chpst -u vcap:vcap ${DAEMON} -config $JOB_DIR/config/telegraf.conf \
          >>$LOG_DIR/$JOB_NAME.log 2>&1
 
     ;;

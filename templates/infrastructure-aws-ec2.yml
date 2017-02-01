@@ -11,23 +11,20 @@ meta:
 jobs:
   - name: just_install_packages
     networks:
-      - name: telegraf1
+      - name: telegraf-network
     persistent_disk: (( grab meta.persistent_disk ))
 
 compilation:
   cloud_properties:
-    instance_type: m3.medium
+    instance_type: t2.2xlarge
 
 resource_pools:
-  - name: small_z1
+  - name: telegraf-pool
     cloud_properties:
-      instance_type: m3.medium
+      instance_type: t2.2xlarge
 
 networks:
-  - name: floating
-    type: vip
-    cloud_properties: {}
-  - name: telegraf1
+  - name: telegraf-network
     type: dynamic
     cloud_properties:
       security_groups: (( grab meta.security_groups ))

@@ -1,0 +1,27 @@
+---
+properties:
+  telegraf:
+    tags: |
+      dc = "us-east-1"
+      deployment = "telegraf"
+      team = "idefix2"
+
+    outputs:
+      inxluxdb:
+        urls: '["http://localhost2:8086"]'
+        database: "Backingservices2"
+        retention_policy: ""
+        write_consistency: "any"
+        timeout: "5s"
+        # user_agent: "teletubis"
+        udp_payload: 100
+
+    inputs:
+      statsd:
+        enabled: false
+        # service_address: 12345
+
+#    conf: |
+#      [[inputs.udp_listener]]
+        # Comments here
+#        service_address = ":8092"

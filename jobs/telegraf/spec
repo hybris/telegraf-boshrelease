@@ -1,24 +1,38 @@
 ---
 name: telegraf
+
 packages:
-- telegraf
+  - telegraf
+
 templates:
-  bin/ctl: bin/ctl
+  config/telegraf.conf.erb: config/telegraf.conf
   bin/monit_debugger: bin/monit_debugger
   data/properties.sh.erb: data/properties.sh
-  config/telegraf.conf.erb: config/telegraf.conf
+  bin/ctl: bin/ctl
   helpers/ctl_setup.sh: helpers/ctl_setup.sh
   helpers/ctl_utils.sh: helpers/ctl_utils.sh
+
 properties:
-  # agent:
-  telegraf.tags:
+  telegraf.conf:
     default: ""
+    description: "The contents of telegraf.conf (telegraf's configuration file)"
+
+  # Tags
+  telegraf.tags:
+    default: |2
+      dc = "us-east-1"
+      deployment = "telegraf"
+      team = "idefix"
     description: Default tag configuration
+  # Agent
   telegraf.interval:
     default: 10s
     description: Default data collection interval for all inputs
   telegraf.round_interval:
     default: true
+    description: Rounds collection interval to 'interval'
+  telegraf.collection_jitter:
+    default: 2s
     description: Rounds collection interval to 'interval'
   telegraf.flush_interval:
     default: 10s
@@ -26,19 +40,20 @@ properties:
   telegraf.flush_jitter:
     default: 5s
     description: Jitter the flush interval by a random amount.
-  telegraf.hostname_prefix:
-    default: ""
-    description: Prefix for generated hostname.
+  telegraf.precision:
+    default: s
+    description: Precision.
 
-  # influxdb output:
+  ### Outputs
+  # Influxdb output:
   telegraf.outputs.inxluxdb.urls:
-    default: ""
+    default: '["http://localhost:8086"]'
     description: |
       The full HTTP or UDP endpoint URL for your InfluxDB instance.
       Multiple urls can be specified as part of the same cluster,
       this means that only ONE of the urls will be written to each interval.
   telegraf.outputs.inxluxdb.database:
-    default: ""
+    default: "Backingservices"
     description: The target database for metrics (telegraf will create it if not exists).
   telegraf.outputs.inxluxdb.retention_policy:
     default: ""
@@ -50,26 +65,20 @@ properties:
     default: "5s"
     description: If not provided, will default to 5s. 0s means no timeout (not recommended).
   telegraf.outputs.inxluxdb.username:
-    default: ""
+    default: "secret"
   telegraf.outputs.inxluxdb.password:
-    default: ""
+    default: "secret"
   telegraf.outputs.inxluxdb.user_agent:
-    default: "telegraf"
-    description: Set the user agent for HTTP POSTs (can be useful for log differentiation)
+    default: ""
+    description: Set the user agent for HTTP POSTs (can be useful for log differentiation) e.g.:telegraf
   telegraf.outputs.inxluxdb.udp_payload:
     default: ""
     description: Set UDP payload size, defaults to InfluxDB UDP Client default (512 bytes)
-  # optional ssl config
-  telegraf.outputs.inxluxdb.ssl_ca:
-    default: ""
-  telegraf.outputs.inxluxdb.ssl_cert:
-    default: ""
-  telegraf.outputs.inxluxdb.ssl_key:
-    default: ""
-  telegraf.outputs.inxluxdb.insecure_skip_verify:
-    default: ""
 
   # statsd input:
+  telegraf.inputs.statsd.enabled:
+    default: false
+    description: Delete gauges every interval (default=false)
   telegraf.inputs.statsd.service_address:
     default: ":8125"
     description: Address and port to host UDP listener on
