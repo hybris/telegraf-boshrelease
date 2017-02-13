@@ -1,5 +1,7 @@
 ---
 builds:
-  '0318a361-8ad2-4f90-8610-549058ecf329':
+  0318a361-8ad2-4f90-8610-549058ecf329:
     version: 1.1.1
+  704544df-a877-42a7-a69c-4f0f7b720647:
+    version: 1.2.0
 format-version: '2'
