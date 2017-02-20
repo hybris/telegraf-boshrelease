@@ -5,12 +5,8 @@ packages:
   - telegraf
 
 templates:
-  config/telegraf.conf.erb: config/telegraf.conf
-  bin/monit_debugger: bin/monit_debugger
-  data/properties.sh.erb: data/properties.sh
-  bin/ctl: bin/ctl
-  helpers/ctl_setup.sh: helpers/ctl_setup.sh
-  helpers/ctl_utils.sh: helpers/ctl_utils.sh
+  telegraf.conf.erb: config/telegraf.conf
+  telegraf.init.sh.erb: bin/init.sh
 
 properties:
   telegraf.conf:
