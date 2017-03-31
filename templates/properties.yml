@@ -7,7 +7,7 @@ properties:
       team = "idefix2"
 
     outputs:
-      inxluxdb:
+      influxdb:
         urls: '["http://localhost2:8086"]'
         database: "Backingservices2"
         retention_policy: ""

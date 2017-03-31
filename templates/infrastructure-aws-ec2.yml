@@ -1,18 +1,18 @@
 meta:
-  environment: (( param "please set meta environment" ))
+  # environment: (( param "please set meta environment" ))
   dns_root: (( param "please set meta dns_root" ))
   security_groups: (( param "please set meta security_groups" ))
   persistent_disk: 4096
+  environment: telegraf-aws
 
   stemcell:
     name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
     version: latest
 
 jobs:
-  - name: just_install_packages
+  - name: telegraf
     networks:
       - name: telegraf-network
-    persistent_disk: (( grab meta.persistent_disk ))
 
 compilation:
   cloud_properties:
@@ -23,8 +23,20 @@ resource_pools:
     cloud_properties:
       instance_type: t2.2xlarge
 
+
 networks:
-  - name: telegraf-network
-    type: dynamic
-    cloud_properties:
-      security_groups: (( grab meta.security_groups ))
+- name: telegraf-network
+  type: manual
+  subnets:
+  - range: 10.2.1.0/24
+    name: telegraf
+    gateway: 10.2.1.1
+    static:
+      - 10.2.1.100
+
+
+update:
+  canaries: 1
+  max_in_flight: 1
+  canary_watch_time: 1000-60000
+  update_watch_time: 1000-60000

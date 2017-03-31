@@ -76,26 +76,26 @@
   ## Multiple urls can be specified as part of the same cluster,
   ## this means that only ONE of the urls will be written to each interval.
   # urls = ["udp://localhost:8089"] # UDP endpoint example
-  urls = <%= p('telegraf.outputs.inxluxdb.urls') %>
+  urls = <%= p('telegraf.outputs.influxdb.urls') %>
   ## The target database for metrics (telegraf will create it if not exists).
-  database = "<%= p('telegraf.outputs.inxluxdb.database') %>"
+  database = "<%= p('telegraf.outputs.influxdb.database') %>"
 
   ## Retention policy to write to. Empty string writes to the default rp.
-  retention_policy = "<%= p('telegraf.outputs.inxluxdb.retention_policy') %>"
+  retention_policy = "<%= p('telegraf.outputs.influxdb.retention_policy') %>"
   ## Write consistency (clusters only), can be: "any", "one", "quorum", "all"
-  write_consistency = "<%= p('telegraf.outputs.inxluxdb.write_consistency') %>"
+  write_consistency = "<%= p('telegraf.outputs.influxdb.write_consistency') %>"
 
   ## Write timeout (for the InfluxDB client), formatted as a string.
   ## If not provided, will default to 5s. 0s means no timeout (not recommended).
-  timeout = "<%= p('telegraf.outputs.inxluxdb.timeout') %>"
-  username = "<%= p('telegraf.outputs.inxluxdb.username') %>"
-  password = "<%= p('telegraf.outputs.inxluxdb.password') %>"
+  timeout = "<%= p('telegraf.outputs.influxdb.timeout') %>"
+  username = "<%= p('telegraf.outputs.influxdb.username') %>"
+  password = "<%= p('telegraf.outputs.influxdb.password') %>"
   ## Set the user agent for HTTP POSTs (can be useful for log differentiation)
-  <% if p('telegraf.outputs.inxluxdb.user_agent', '').blank? == false %>
-  user_agent = "<%= p('telegraf.outputs.inxluxdb.user_agent') %>"
+  <% if p('telegraf.outputs.influxdb.user_agent', '').blank? == false %>
+  user_agent = "<%= p('telegraf.outputs.influxdb.user_agent') %>"
   <% end %>
   ## Set UDP payload size, defaults to InfluxDB UDP Client default (512 bytes)
-  <% if p('telegraf.outputs.inxluxdb.udp_payload', '').blank? == false %>udp_payload = <%= p('telegraf.outputs.inxluxdb.udp_payload') %><% end %>
+  <% if p('telegraf.outputs.influxdb.udp_payload', '').blank? == false %>udp_payload = <%= p('telegraf.outputs.influxdb.udp_payload') %><% end %>
   ## Optional SSL Config
   # ssl_ca = "/etc/telegraf/ca.pem"
   # ssl_cert = "/etc/telegraf/cert.pem"

@@ -42,32 +42,32 @@ properties:
 
   ### Outputs
   # Influxdb output:
-  telegraf.outputs.inxluxdb.urls:
+  telegraf.outputs.influxdb.urls:
     default: '["http://localhost:8086"]'
     description: |
       The full HTTP or UDP endpoint URL for your InfluxDB instance.
       Multiple urls can be specified as part of the same cluster,
       this means that only ONE of the urls will be written to each interval.
-  telegraf.outputs.inxluxdb.database:
+  telegraf.outputs.influxdb.database:
     default: "Backingservices"
     description: The target database for metrics (telegraf will create it if not exists).
-  telegraf.outputs.inxluxdb.retention_policy:
+  telegraf.outputs.influxdb.retention_policy:
     default: ""
     description: Retention policy to write to. Empty string writes to the default rp.
-  telegraf.outputs.inxluxdb.write_consistency:
+  telegraf.outputs.influxdb.write_consistency:
     default: "any"
     description: 'Write consistency (clusters only), can be: "any", "one", "quorum", "all"'
-  telegraf.outputs.inxluxdb.timeout:
+  telegraf.outputs.influxdb.timeout:
     default: "5s"
     description: If not provided, will default to 5s. 0s means no timeout (not recommended).
-  telegraf.outputs.inxluxdb.username:
+  telegraf.outputs.influxdb.username:
     default: "secret"
-  telegraf.outputs.inxluxdb.password:
+  telegraf.outputs.influxdb.password:
     default: "secret"
-  telegraf.outputs.inxluxdb.user_agent:
+  telegraf.outputs.influxdb.user_agent:
     default: ""
     description: Set the user agent for HTTP POSTs (can be useful for log differentiation) e.g.:telegraf
-  telegraf.outputs.inxluxdb.udp_payload:
+  telegraf.outputs.influxdb.udp_payload:
     default: ""
     description: Set UDP payload size, defaults to InfluxDB UDP Client default (512 bytes)
 
