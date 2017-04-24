@@ -6,6 +6,10 @@ properties:
       deployment = "telegraf"
       team = "idefix2"
 
+    interval: 20
+    flush_interval: 20 # should not be belllow interval
+    collection_jitter: 5
+
     outputs:
       influxdb:
         urls: '["http://localhost2:8086"]'
