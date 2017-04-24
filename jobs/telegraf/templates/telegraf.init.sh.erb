@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 set -e
+#set -x
+#export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 
 # chkconfig: 2345 99 01
 # description: Telegraf daemon
@@ -97,112 +99,94 @@ function log_success_msg() {
 }
 
 case $1 in
-    start)
-        # Check if config file exist
-        if [ ! -r $CONFIG ]; then
-            log_failure_msg "config file doesn't exist (or you don't have permission to view)"
-            exit 4
-        fi
+  start)
+    # Check if config file exist
+    if [ ! -r $CONFIG ]; then
+        log_failure_msg "config file doesn't exist (or you don't have permission to view)"
+        exit 4
+    fi
 
-        # Checked the PID file exists and check the actual status of process
-        if [ -e $PIDFILE ]; then
-          PID="$(pgrep -f $PIDFILE)"
-#          if test ! -z $PID && kill -0 "$PID" &>/dev/null; then
-          if [ ! -f ${PID} ] && kill -0 ${PID} &>/dev/null; then
-            # If the status is SUCCESS then don't need to start again.
-            log_failure_msg "$NAME process is running"
-            exit 0 # Exit
-          fi
-        # if PID file does not exist, check if writable
-        else
-          su -s /bin/sh -c "touch $PIDFILE" $USER > /dev/null 2>&1
-          if [ $? -ne 0 ]; then
-              log_failure_msg "$PIDFILE not writable, check permissions"
-              exit 5
-          fi
-        fi
+    # Bump the file limits, before launching the daemon. These will carry over to launched processes.
+    ulimit -n $OPEN_FILE_LIMIT
+    if [ $? -ne 0 ]; then
+        log_failure_msg "set open file limit to $OPEN_FILE_LIMIT"
+    fi
 
-        # Bump the file limits, before launching the daemon. These will carry over to
-        # launched processes.
-        ulimit -n $OPEN_FILE_LIMIT
-        if [ $? -ne 0 ]; then
-            log_failure_msg "set open file limit to $OPEN_FILE_LIMIT"
-        fi
+    # Checked the PID file exists and check the actual status of process
+    if [ -e $PIDFILE ]; then
+     status_of_proc -p $PIDFILE $DAEMON "$NAME process" && status="0" || status="$?"
+     # If the status is SUCCESS then don't need to start again.
+     if [ $status = "0" ]; then
+       log_success_msg "$NAME process was already running"
+      exit # Exit
+     fi
+    fi
+    # Start the daemon.
+    log_daemon_msg "Starting the process" "$NAME"
+    # Start the daemon with the help of start-stop-daemon
+    log_success_msg "Starting the process" "$NAME"
+    # Log the message appropriately
+    if `start-stop-daemon --chuid $GROUP:$USER --start --quiet --oknodo --pidfile $PIDFILE --exec $DAEMON -- -pidfile $PIDFILE -config $CONFIG $TELEGRAF_OPTS &`; then
+     log_end_msg 0
+     log_success_msg "$NAME process was started"
+    else
+     log_end_msg 1
+     log_failure_msg "$NAME process did not started"
 
-        log_success_msg "Starting the process" "$NAME"
-        if which start-stop-daemon > /dev/null 2>&1; then
-            start-stop-daemon --chuid $GROUP:$USER --start --quiet --pidfile $PIDFILE --exec $DAEMON -- -pidfile $PIDFILE -config $CONFIG $TELEGRAF_OPTS &
-        else
-          su -s /bin/sh -c "nohup $DAEMON -pidfile $PIDFILE -config $CONFIG $TELEGRAF_OPTS_OPTS &" $USER
-        fi
-        log_success_msg "$NAME process was started"
-        ;;
+    fi
+  ;;
 
-    stop)
-        # Stop the daemon.
-        if [ -e ${PIDFILE} ]; then
-          PID="$(pgrep -f ${PIDFILE})"
-##          if test ! -z $PID && kill -0 "$PID" &>/dev/null; then
-          if [ ! -f ${PID} ] && kill -0 ${PID} &>/dev/null; then
-            if killproc -p ${PIDFILE} SIGTERM && /bin/rm -rf ${PIDFILE}; then
-              log_success_msg "$NAME process was stopped"
-            else
-              log_failure_msg "$NAME failed to stop service"
-            fi
-          else
-            log_failure_msg "$NAME process not running, removing PIDFILE"
-            rm ${PIDFILE}
-          fi
-        else
-          log_failure_msg "$NAME process is not running"
-        fi
-        ;;
+  stop)
+    # Stop the daemon.
+    if [ -e $PIDFILE ]; then
+     status_of_proc -p $PIDFILE $DAEMON "$NAME process" && status="0" || status="$?"
+     if [ "$status" = 0 ]; then
+      start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE
+      /bin/rm -rf $PIDFILE
+      log_success_msg "$NAME process was stopped"
+     fi
+    else
+     log_daemon_msg "$NAME process is not running"
+     log_end_msg 0
+     log_failure_msg "$NAME process is not running"
+    fi
+    ;;
 
-    reload)
-        # Reload the daemon.
-        if [ -e $pidfile ]; then
-            pidofproc -p $pidfile $daemon > /dev/null 2>&1 && status="0" || status="$?"
-            if [ "$status" = 0 ]; then
-                if killproc -p $pidfile SIGHUP; then
-                    log_success_msg "$name process was reloaded"
-                else
-                    log_failure_msg "$name failed to reload service"
-                fi
-            fi
-        else
-            log_failure_msg "$name process is not running"
-        fi
-        ;;
+  reload)
+    # Reload the process. Basically sending some signal to a daemon to reload
+    # it configurations.
+    if [ -e $PIDFILE ]; then
+      start-stop-daemon --stop --signal USR1 --quiet --pidfile $PIDFILE --name $NAME
+      log_success_msg "$NAME process reloaded successfully"
+      log_success_msg "$name process was reloaded"
+    else
+      log_failure_msg "$PIDFILE does not exists"
+      log_failure_msg "$name process is not running"
+    fi
+  ;;
 
-    restart)
-        # Restart the daemon.
-        $0 stop && sleep 2 && $0 start
-        ;;
+  restart)
+    # Restart the daemon.
+    $0 stop && sleep 2 && $0 start
+    ;;
 
-    status)
-        # Check the status of the process.
-        if [ -e $PIDFILE ]; then
-          PID="$(pgrep -f $PIDFILE)"
-          if test ! -z $PID && test -d "/proc/$PID" &>/dev/null; then
-            log_success_msg "$NAME Process is running"
-            exit 0
-          else
-              log_failure_msg "$NAME Process is not running"
-              exit 1
-          fi
-        else
-            log_failure_msg "$NAME Process is not running"
-            exit 3
-        fi
-        ;;
+  status)
+    # Check the status of the process.
+    if [ -e $PIDFILE ]; then
+     status_of_proc -p $PIDFILE $DAEMON "$NAME process" && exit 0 || exit $?
+    else
+     log_daemon_msg "$NAME Process is not running"
+     log_end_msg 0
+    fi
+  ;;
 
-    version)
-        $DAEMON version
-        ;;
+  version)
+      $DAEMON version
+      ;;
 
-    *)
-        # For invalid arguments, print the usage message.
-        echo "Usage: $0 {start|stop|restart|status|version}"
-        exit 2
-        ;;
+  *)
+      # For invalid arguments, print the usage message.
+      echo "Usage: $0 {start|stop|restart|status|version}"
+      exit 2
+      ;;
 esac

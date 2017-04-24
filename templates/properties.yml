@@ -2,23 +2,23 @@
 properties:
   telegraf:
     tags: |
-      dc = "us-east-1"
+      dc = "my-mac"
       deployment = "telegraf"
-      team = "idefix2"
+      team = "idefix-robert"
 
-    interval: 20
-    flush_interval: 20 # should not be belllow interval
-    collection_jitter: 5
+    interval: 20s
+    flush_interval: 20s # should not be belllow interval
+    collection_jitter: 5s
 
     outputs:
       influxdb:
-        urls: '["http://localhost2:8086"]'
-        database: "Backingservices2"
-        retention_policy: ""
-        write_consistency: "any"
+        urls: '["http://10.244.10.19:8086"]'
+        database: "test"
         timeout: "5s"
         # user_agent: "teletubis"
         udp_payload: 100
+        username: user
+        password: password
 
     inputs:
       statsd:

@@ -49,7 +49,7 @@ properties:
       Multiple urls can be specified as part of the same cluster,
       this means that only ONE of the urls will be written to each interval.
   telegraf.outputs.influxdb.database:
-    default: "Backingservices"
+    default: "TestDatabase"
     description: The target database for metrics (telegraf will create it if not exists).
   telegraf.outputs.influxdb.retention_policy:
     default: ""
