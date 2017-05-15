@@ -2,21 +2,8 @@
 set -e # exit immediately if a simple command exits with a non-zero status
 set -u # report the usage of uninitialized variables
 
-VERSION=1.2.0
+VERSION=1.2.1
 
-# Detect # of CPUs so make jobs can be parallelized
-CPUS=$(grep -c ^processor /proc/cpuinfo)
-
-# Available variables
-# $BOSH_COMPILE_TARGET - where this package & spec'd source files are available
-# $BOSH_INSTALL_TARGET - where you copy/install files to be included in package
-
-echo "Extracting Influx Data Node..."
+echo "Extracting Telegraf ..."
 tar -xvf telegraf/telegraf-${VERSION}_linux_amd64.tar.gz --strip 2 -C ${BOSH_INSTALL_TARGET}
 
-ls -R $BOSH_INSTALL_TARGET
-chmod +x $BOSH_INSTALL_TARGET/usr/bin/telegraf
-chmod +x $BOSH_INSTALL_TARGET/usr/lib/telegraf/scripts/init.sh
-
-mkdir -p $BOSH_INSTALL_TARGET/bin
-cp -a $BOSH_INSTALL_TARGET/usr/bin/telegraf $BOSH_INSTALL_TARGET/bin/telegraf

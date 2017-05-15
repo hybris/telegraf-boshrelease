@@ -16,16 +16,20 @@ properties:
         database: "test"
         timeout: "5s"
         # user_agent: "teletubis"
-        udp_payload: 100
+        # udp_payload: 100
         username: user
         password: password
 
     inputs:
       statsd:
-        enabled: false
+        # enabled: false
         # service_address: 12345
 
 #    conf: |
 #      [[inputs.udp_listener]]
         # Comments here
 #        service_address = ":8092"
+
+      net:
+        enabled: false
+        interfaces: eth0

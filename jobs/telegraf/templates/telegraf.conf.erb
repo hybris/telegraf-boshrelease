@@ -135,7 +135,7 @@
   # skip_serial_number = false
 
 # Get kernel statistics from /proc/stat
-[[inputs.kernel]]
+# [[inputs.kernel]]
   # no configuration
 
 # Read metrics about memory usage
@@ -223,9 +223,9 @@
 #   timeout = "5s"
 
 # # Collect statistics about itself
-[[inputs.internal]]
-  ## If true, collect telegraf memory stats.
-  collect_memstats = true
+#[[inputs.internal]]
+#  ## If true, collect telegraf memory stats.
+#  collect_memstats = true
 
 # # Read metrics from the kubernetes kubelet api
 # [[inputs.kubernetes]]
@@ -242,6 +242,8 @@
 #   ## Use SSL but skip chain & host verification
 #   # insecure_skip_verify = false
 
+
+<% if p('telegraf.inputs.net.enabled') %>
 # # Read metrics about network interface usage
 [[inputs.net]]
   ## By default, telegraf gathers stats from any up interface (excluding loopback)
@@ -249,28 +251,10 @@
   ## regardless of status.
   ##
   # interfaces = ["eth0"]
-
-# # TCP or UDP 'ping' given url and collect response time in seconds
-# [[inputs.net_response]]
-#   ## Protocol, must be "tcp" or "udp"
-#   ## NOTE: because the "udp" protocol does not respond to requests, it requires
-#   ## a send/expect string pair (see below).
-#   protocol = "tcp"
-#   ## Server address (default localhost)
-#   address = "localhost:80"
-#   ## Set timeout
-#   timeout = "1s"
-#
-#   ## Set read timeout (only used if expecting a response)
-#   read_timeout = "1s"
-#
-#   ## The following options are required for UDP checks. For TCP, they are
-#   ## optional. The plugin will send the given string to the server and then
-#   ## expect to receive the given 'expect' string back.
-#   ## string sent to the server
-#   # send = "ssh"
-#   ## expected string in answer
-#   # expect = "ssh"
+  <% if ! p('telegraf.inputs.net.interfaces').blank? %>
+  interfaces = ["<%= p('telegraf.inputs.net.interfaces') %>"]
+  <% end %>
+<% end %>
 
 # Read TCP metrics such as established, time wait and sockets counts.
 [[inputs.netstat]]
@@ -286,11 +270,6 @@
 #  proc_net_snmp6 = "/proc/net/snmp6"
 #  ## dump metrics with 0 values too
 #  dump_zeros       = true
-
-# # Get standard NTP query metrics, requires ntpq executable.
-# [[inputs.ntpq]]
-#   ## If false, set the -n ntpq flag. Can reduce metric gather time.
-#   dns_lookup = true
 
 # # Ping given url(s) and return statistics
 # [[inputs.ping]]
@@ -345,65 +324,6 @@
   percentile_limit = <%= p('telegraf.inputs.statsd.percentile_limit') %>
 <% end %>
 
-# # Stream a log file, like the tail -f command
-# [[inputs.tail]]
-#   ## files to tail.
-#   ## These accept standard unix glob matching rules, but with the addition of
-#   ## ** as a "super asterisk". ie:
-#   ##   "/var/log/**.log"  -> recursively find all .log files in /var/log
-#   ##   "/var/log/*/*.log" -> find all .log files with a parent dir in /var/log
-#   ##   "/var/log/apache.log" -> just tail the apache log file
-#   ##
-#   ## See https://github.com/gobwas/glob for more examples
-#   ##
-#   files = ["/var/mymetrics.out"]
-#   ## Read file from beginning.
-#   from_beginning = false
-#   ## Whether file is a named pipe
-#   pipe = false
-#
-#   ## Data format to consume.
-#   ## Each data format has it's own unique set of configuration options, read
-#   ## more about them here:
-#   ## https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md
-#   data_format = "influx"
-
-# # Generic TCP listener
-# [[inputs.tcp_listener]]
-#   ## Address and port to host TCP listener on
-#   # service_address = ":8094"
-#
-#   ## Number of TCP messages allowed to queue up. Once filled, the
-#   ## TCP listener will start dropping packets.
-#   # allowed_pending_messages = 10000
-#
-#   ## Maximum number of concurrent TCP connections to allow
-#   # max_tcp_connections = 250
-#
-#   ## Data format to consume.
-#   ## Each data format has it's own unique set of configuration options, read
-#   ## more about them here:
-#   ## https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md
-#   data_format = "influx"
-
-# # Generic UDP listener
-# [[inputs.udp_listener]]
-#   ## Address and port to host UDP listener on
-#   # service_address = ":8092"
-#
-#   ## Number of UDP messages allowed to queue up. Once filled, the
-#   ## UDP listener will start dropping packets.
-#   # allowed_pending_messages = 10000
-#
-#   ## Set the buffer size of the UDP connection outside of OS default (in bytes)
-#   ## If set to 0, take OS default
-#   udp_buffer_size = 16777216
-#
-#   ## Data format to consume.
-#   ## Each data format has it's own unique set of configuration options, read
-#   ## more about them here:
-#   ## https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md
-#   data_format = "influx"
 
 <% if p('telegraf.conf', '').blank? == false %>
 # Any other additions not defined

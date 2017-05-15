@@ -16,10 +16,11 @@ properties:
   # Tags
   telegraf.tags:
     default: |2
-      dc = "us-east-1"
+      dc = "de-munich-1"
       deployment = "telegraf"
       team = "idefix"
     description: Default tag configuration
+
   # Agent
   telegraf.interval:
     default: 10s
@@ -112,3 +113,15 @@ properties:
       Number of timing/histogram values to track per-measurement in the
       calculation of percentiles. Raising this limit increases the accuracy
       of percentiles but also increases the memory usage and cpu time.
+
+  # net input:
+  telegraf.inputs.net.enabled:
+    default: true
+    description: Controll Net input plugin
+  telegraf.inputs.net.interfaces:
+    description: |
+      By default, telegraf gathers stats from any up interface (excluding loopback)
+      Setting interfaces will tell it to gather these explicit interfaces, regardless of status.
+    default: ""
+    # default: "eth0"
+    # interfaces = ["eth0"]

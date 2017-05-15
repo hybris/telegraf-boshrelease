@@ -1,5 +1,5 @@
-#! /usr/bin/env bash
-set -e
+#!/bin/bash -e
+
 #set -x
 #export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 
@@ -27,6 +27,9 @@ set -e
 # any config file values.
 TELEGRAF_OPTS=
 
+USER=vcap
+GROUP=vcap
+
 JOB_NAME=<%= spec.name %>
 PACKAGE_NAME=telegraf
 # Process name ( For display )
@@ -40,9 +43,6 @@ exec 1>> ${LOG_DIR}/telegraf.stdout.log
 exec 2>> ${LOG_DIR}/telegraf.stderr.log
 
 PIDFILE=$RUN_DIR/telegraf.pid
-
-USER=vcap
-GROUP=vcap
 
 # Daemon name, where is the actual executable
 # If the daemon is not there, then exit.
@@ -132,7 +132,6 @@ case $1 in
     else
      log_end_msg 1
      log_failure_msg "$NAME process did not started"
-
     fi
   ;;
 
