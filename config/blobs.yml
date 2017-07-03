@@ -3,3 +3,7 @@ telegraf/telegraf-1.2.1_linux_amd64.tar.gz:
   object_id: 6f9ce815-f990-4123-a471-d0764ce0489c
   sha: 5c61cabe4ac5c5fde972262194dd26e561cd8579
   size: 9635266
+telegraf/telegraf-1.3.3_linux_amd64.tar.gz:
+  object_id: ca42b1e0-2f60-465c-a8d5-29c4d25f15dc
+  sha: 7db3e81bc26f95086c36dc4da65919ae391aa2a0
+  size: 11170563
