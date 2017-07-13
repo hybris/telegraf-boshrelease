@@ -11,7 +11,11 @@ templates:
 properties:
   telegraf.conf:
     default: ""
-    description: "The contents of telegraf.conf (telegraf's configuration file)"
+    description: "Additional contents of telegraf.conf (telegraf's configuration file)"
+
+  telegraf.conf2:
+    default: ""
+    description: "Additional contents of telegraf.conf (telegraf's configuration file)"
 
   # Tags
   telegraf.tags:

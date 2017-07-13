@@ -329,3 +329,8 @@
 # Any other additions not defined
 <%= p('telegraf.conf') %>
 <% end %>
+
+<% if p('telegraf.conf2', '').blank? == false %>
+# Any other additions not defined
+<%= p('telegraf.conf2') %>
+<% end %>
