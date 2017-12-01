@@ -1,0 +1,20 @@
+---
+packages:
+- name: telegraf
+  version: 8bbe4ccdd56bb861329e76a83aa974c5aafcf1d6
+  fingerprint: 8bbe4ccdd56bb861329e76a83aa974c5aafcf1d6
+  sha1: a559fe2968957ac9d2a19dad3cc33b6e6cd79e11
+  dependencies: []
+jobs:
+- name: telegraf
+  version: 1c3ca48982920d9b8c5ae2504182ed7e56fafdbd
+  fingerprint: 1c3ca48982920d9b8c5ae2504182ed7e56fafdbd
+  sha1: 27edaea1969258c690207e43089af877b4b308c5
+license:
+  version: bae9f6891adb12cffc07afe7b132b8e90086904b
+  fingerprint: bae9f6891adb12cffc07afe7b132b8e90086904b
+  sha1: 221e24e5a250ce61b744363ebe7fbbdc2be86e94
+commit_hash: 5d36985b
+uncommitted_changes: true
+name: telegraf
+version: 1.13.0
