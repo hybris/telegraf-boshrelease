@@ -1,3 +1,3 @@
 ## Release Notes
 
-Telegraf 1.3.3
+Telegraf 1.4.4

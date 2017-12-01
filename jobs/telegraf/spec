@@ -27,7 +27,7 @@ properties:
 
   # Agent
   telegraf.interval:
-    default: 10s
+    default: 60s
     description: Default data collection interval for all inputs
   telegraf.round_interval:
     default: true
